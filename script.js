@@ -1,7 +1,7 @@
 (function () {
   var TITLES = [
     { id: 1, t: "Signal Lost", y: 2026, r: "TV-MA", len: "2 seasons", g: ["Sci-Fi", "Thriller"], h: [265, 215], d: "A deep-space relay crew starts picking up their own voices on a channel that shouldn't exist. Every message arrives an hour before they say it." },
-    { id: 2, t: "The Last Lighthouse", y: 2025, r: "PG-13", len: "1h 52m", g: ["Drama"], h: [200, 230], d: "The final keeper of a failing coastal light has one winter to decide whether the sea is worth staying for." },
+    { id: 2, t: "IRON-MAN 3 ", y: 2013, r: "PG-13", len: "2h 10m", g: ["Science fiction"], h: [200, 230], d: "Plagued with worry and insomnia since saving New York from destruction, Tony Stark (Robert Downey Jr.), now, is more dependent on the suits that give him his Iron Man persona -- so much so that every aspect of his life is affected, including his relationship with Pepper (Gwyneth Paltrow). After a malevolent enemy known as the Mandarin (Ben Kingsley) reduces his personal world to rubble, Tony must rely solely on instinct and ingenuity to avenge his losses and protect the people he loves." },
     { id: 3, t: "Paper Kingdoms", y: 2026, r: "TV-Y7", len: "3 seasons", g: ["Animation", "Family"], h: [40, 340], d: "Two siblings fold a map into a kingdom, and now the kingdom won't stop growing." },
     { id: 4, t: "Midnight Ledger", y: 2024, r: "TV-MA", len: "1 season", g: ["Crime", "Thriller"], h: [150, 190], d: "A quiet accountant finds a second set of books, and someone knows she's read them." },
     { id: 5, t: "Salt & Ember", y: 2025, r: "PG-13", len: "1h 40m", g: ["Romance", "Drama"], h: [15, 330], d: "Two rival chefs are forced to share one tiny kitchen on a ferry that only runs at night." },
@@ -22,7 +22,7 @@
   var ROWS = [
     { name: "Trending now", ids: [1, 4, 3, 9, 12, 7, 2, 10] },
     { name: "New this month", ids: [18, 15, 3, 6, 10, 1, 8] },
-    { name: "Sci-Fi & Fantasy", ids: [1, 10, 9, 18, 13] },
+    { name: "Sci-Fi & Fantasy", ids: [1, 10, 9, 18, 13, 2] },
     { name: "Crime & mystery", ids: [4, 12, 16, 7] },
     { name: "Feel-good picks", ids: [14, 6, 5, 13, 3, 18] },
     { name: "True stories", ids: [8, 15, 17, 2, 11] }
@@ -153,4 +153,17 @@
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if ($("player").classList.contains("show")) stopPlayer(); else closeModal(); } });
 
   refresh();
+
+  /* INTRO */
+  (function () {
+    var intro = document.getElementById("intro");
+    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.body.style.overflow = "hidden";
+    var wait = reduced ? 300 : 2000;
+    setTimeout(function () {
+      intro.classList.add("hide");
+      document.body.style.overflow = "";
+      setTimeout(function () { intro.style.display = "none"; }, 600);
+    }, wait);
+  })();
 })();

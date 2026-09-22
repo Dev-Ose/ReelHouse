@@ -21,6 +21,48 @@ body {
 button { font: inherit; color: inherit; cursor: pointer; }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
+/* INTRO */
+.intro {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: #050506;
+  transition: opacity .5s ease .1s, visibility .5s ease .1s;
+}
+.intro.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+.intro-glow {
+  position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%;
+  background: radial-gradient(circle, rgba(225,38,45,.35), rgba(225,38,45,0) 60%);
+  opacity: 0; animation: glowPulse 1.8s ease forwards .55s;
+}
+.intro-mark {
+  position: relative; display: flex; overflow: hidden;
+  font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
+  font-size: clamp(2.6rem, 11vw, 5.2rem); letter-spacing: .04em; color: var(--red);
+}
+.intro-mark span {
+  display: inline-block; transform: translateY(110%);
+  animation: letterUp .55s cubic-bezier(.2,.9,.25,1) forwards;
+}
+.intro-mark span:nth-child(1) { animation-delay: .05s; }
+.intro-mark span:nth-child(2) { animation-delay: .09s; }
+.intro-mark span:nth-child(3) { animation-delay: .13s; }
+.intro-mark span:nth-child(4) { animation-delay: .17s; }
+.intro-mark span:nth-child(5) { animation-delay: .21s; }
+.intro-mark span:nth-child(6) { animation-delay: .25s; }
+.intro-mark span:nth-child(7) { animation-delay: .29s; }
+.intro-mark span:nth-child(8) { animation-delay: .33s; }
+.intro-mark span:nth-child(9) { animation-delay: .37s; }
+@keyframes letterUp { to { transform: translateY(0); } }
+@keyframes glowPulse {
+  0% { opacity: 0; transform: scale(.6); }
+  55% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro-mark span { animation: none; transform: none; opacity: 1; }
+  .intro-glow { animation: none; opacity: 0; }
+}
+
 /* NAV */
 .nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 20;
