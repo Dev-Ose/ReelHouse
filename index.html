@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Reelhouse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #101014;
+    --panel: #1b1b22;
+    --ink: #f4f1ee;
+    --muted: #a9a5b3;
+    --red: #e1262d;
+    --red-ink: #ffffff;
+    --line: #2c2c36;
+    box-sizing: border-box;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    overflow-x: hidden;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+  /* NAV */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px;
+    display: flex; align-items: center; gap: 16px;
+    background: linear-gradient(to bottom, rgba(16,16,20,.85), rgba(16,16,20,0));
+    transition: background .25s;
+  }
+  .nav.solid { background: var(--bg); box-shadow: 0 1px 0 var(--line); }
+  .brand { font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif; font-size: 1.9rem; letter-spacing: .04em; color: var(--red); margin-right: 4px; }
+  .tabs { display: flex; gap: 14px; flex: 1; }
+  .tabs button { background: none; border: 0; padding: 6px 0; color: var(--muted); font-weight: 600; }
+  .tabs button[aria-current="true"] { color: var(--ink); }
+  .search { display: flex; align-items: center; gap: 6px; }
+  .search input {
+    width: 0; opacity: 0; padding: 0; border: 0; background: var(--panel); color: var(--ink);
+    font: inherit; border-radius: 6px; transition: width .2s, opacity .2s, padding .2s;
+  }
+  .search.open input { width: 130px; opacity: 1; padding: 7px 10px; }
+  .search button { background: none; border: 0; padding: 4px; display: grid; place-items: center; }
+
+  /* HERO */
+  .hero {
+    position: relative; min-height: 78vh; display: flex; align-items: flex-end;
+    padding: 96px 18px 32px; overflow: hidden;
+  }
+  .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 4%, rgba(16,16,20,0) 55%); }
+  .hero-art { position: absolute; inset: 0; }
+  .hero-body { position: relative; z-index: 1; max-width: 520px; }
+  .kicker { color: var(--muted); font-size: .9rem; margin: 0 0 6px; }
+  .hero h1 { font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif; font-weight: 400; font-size: clamp(3.4rem, 16vw, 6rem); line-height: .9; margin: 0 0 12px; letter-spacing: .02em; }
+  .hero p.desc { margin: 0 0 18px; line-height: 1.5; color: #dedbe4; max-width: 46ch; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn { border: 0; border-radius: 6px; padding: 12px 20px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+  .btn.play { background: var(--ink); color: #111; }
+  .btn.ghost { background: rgba(120,120,135,.45); color: var(--ink); }
+  .btn.red { background: var(--red); color: var(--red-ink); }
+
+  /* ROWS */
+  main { position: relative; z-index: 2; padding-bottom: 40px; }
+  .row { margin: 6px 0 22px; }
+  .row h2 { font-size: 1.05rem; font-weight: 600; margin: 0 0 10px 16px; }
+  .strip { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px; scroll-snap-type: x proximity; scrollbar-width: none; }
+  .strip::-webkit-scrollbar { display: none; }
+  .card {
+    flex: 0 0 auto; width: 128px; aspect-ratio: 2 / 3; border: 0; border-radius: 6px; padding: 10px;
+    position: relative; overflow: hidden; scroll-snap-align: start; text-align: left;
+    display: flex; align-items: flex-end;
+  }
+  .card::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 70% 25%, rgba(255,255,255,.28), rgba(255,255,255,0) 55%); }
+  .card .t { position: relative; font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif; font-size: 1.5rem; line-height: .95; letter-spacing: .02em; text-shadow: 0 2px 8px rgba(0,0,0,.5); }
+  .card .tick { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.6); border-radius: 50%; width: 22px; height: 22px; display: grid; place-items: center; font-size: .8rem; }
+  @media (min-width: 700px) { .card { width: 170px; } .row h2 { margin-left: 32px; } .strip { padding: 0 32px; } .nav { padding-left: 32px; padding-right: 32px; } .hero { padding-left: 32px; } }
+
+  .empty { margin: 60px 24px; color: var(--muted); text-align: center; line-height: 1.5; }
+  .grid { display: flex; flex-wrap: wrap; gap: 8px; padding: 92px 16px 0; }
+
+  /* MODAL + PLAYER */
+  .overlay { position: fixed; inset: 0; z-index: 40; display: none; }
+  .overlay.show { display: block; }
+  .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.7); }
+  .sheet {
+    position: absolute; left: 50%; transform: translateX(-50%); bottom: 0; width: 100%; max-width: 560px; max-height: 90%;
+    overflow-y: auto; background: var(--panel); border-radius: 14px 14px 0 0;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+  @media (min-width: 700px) { .sheet { bottom: auto; top: 50%; transform: translate(-50%, -50%); border-radius: 14px; } }
+  .sheet .banner { height: 170px; position: relative; display: flex; align-items: flex-end; padding: 16px; }
+  .sheet .banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, var(--panel), rgba(27,27,34,0) 70%); }
+  .sheet .banner h3 { position: relative; z-index: 1; margin: 0; font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif; font-weight: 400; font-size: 2.6rem; line-height: .95; }
+  .sheet .content { padding: 4px 18px 0; }
+  .meta { color: var(--muted); font-size: .9rem; display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 12px; }
+  .meta .r { border: 1px solid var(--muted); padding: 0 6px; border-radius: 3px; }
+  .sheet p { line-height: 1.55; margin: 0 0 16px; }
+  .close { position: absolute; top: 10px; right: 10px; z-index: 2; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(0,0,0,.6); font-size: 1.1rem; }
+
+  .player { background: #000; display: none; flex-direction: column; justify-content: space-between; padding: calc(16px + env(safe-area-inset-top, 0px)) 18px calc(20px + env(safe-area-inset-bottom, 0px)); }
+  .player.show { display: flex; }
+  .player .top { display: flex; justify-content: space-between; align-items: center; }
+  .player .mid { text-align: center; color: var(--muted); line-height: 1.5; padding: 0 12px; }
+  .player .mid strong { display: block; color: var(--ink); font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif; font-weight: 400; font-size: 2.4rem; letter-spacing: .03em; margin-bottom: 6px; }
+  .bar { height: 5px; background: #3a3a44; border-radius: 3px; overflow: hidden; margin-bottom: 14px; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--red); }
+  .ctrls { display: flex; justify-content: center; }
+  .ctrls .btn { min-width: 120px; justify-content: center; }
+  .back { background: none; border: 0; padding: 6px 0; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <span class="brand">REELHOUSE</span>
+  <nav class="tabs" aria-label="Sections">
+    <button id="tabHome" aria-current="true">Home</button>
+    <button id="tabList" aria-current="false">My List</button>
+  </nav>
+  <div class="search" id="search">
+    <input id="q" type="search" placeholder="Titles, genres" aria-label="Search titles">
+    <button id="searchBtn" aria-label="Search">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    </button>
+  </div>
+</header>
+
+<section class="hero" id="hero" aria-label="Featured">
+  <div class="hero-art" id="heroArt"></div>
+  <div class="hero-body">
+    <p class="kicker" id="heroKicker"></p>
+    <h1 id="heroTitle"></h1>
+    <p class="desc" id="heroDesc"></p>
+    <div class="actions">
+      <button class="btn play" id="heroPlay">▶ Play</button>
+      <button class="btn ghost" id="heroList">+ My List</button>
+      <button class="btn ghost" id="heroInfo">Details</button>
+    </div>
+  </div>
+</section>
+
+<main id="rows"></main>
+
+<div class="overlay" id="modal" role="dialog" aria-modal="true" aria-label="Title details">
+  <div class="scrim" data-close></div>
+  <div class="sheet">
+    <button class="close" data-close aria-label="Close">✕</button>
+    <div class="banner" id="mBanner"><h3 id="mTitle"></h3></div>
+    <div class="content">
+      <div class="meta" id="mMeta"></div>
+      <p id="mDesc"></p>
+      <div class="actions">
+        <button class="btn red" id="mPlay">▶ Play</button>
+        <button class="btn ghost" id="mList">+ My List</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay player" id="player" role="dialog" aria-modal="true" aria-label="Player">
+  <div class="top"><button class="back" id="pBack">‹ Back</button><span id="pTime" style="color:var(--muted)"></span></div>
+  <div class="mid"><strong id="pTitle"></strong>This is a demo player. There's no real video, just a progress bar so you can see how it would feel.</div>
+  <div>
+    <div class="bar"><i id="pBar"></i></div>
+    <div class="ctrls"><button class="btn play" id="pToggle">Pause</button></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var TITLES = [
+    { id: 1, t: "Signal Lost", y: 2026, r: "TV-MA", len: "2 seasons", g: ["Sci-Fi", "Thriller"], h: [265, 215], d: "A deep-space relay crew starts picking up their own voices on a channel that shouldn't exist. Every message arrives an hour before they say it." },
+    { id: 2, t: "The Last Lighthouse", y: 2025, r: "PG-13", len: "1h 52m", g: ["Drama"], h: [200, 230], d: "The final keeper of a failing coastal light has one winter to decide whether the sea is worth staying for." },
+    { id: 3, t: "Paper Kingdoms", y: 2026, r: "TV-Y7", len: "3 seasons", g: ["Animation", "Family"], h: [40, 340], d: "Two siblings fold a map into a kingdom, and now the kingdom won't stop growing." },
+    { id: 4, t: "Midnight Ledger", y: 2024, r: "TV-MA", len: "1 season", g: ["Crime", "Thriller"], h: [150, 190], d: "A quiet accountant finds a second set of books, and someone knows she's read them." },
+    { id: 5, t: "Salt & Ember", y: 2025, r: "PG-13", len: "1h 40m", g: ["Romance", "Drama"], h: [15, 330], d: "Two rival chefs are forced to share one tiny kitchen on a ferry that only runs at night." },
+    { id: 6, t: "Orbit Kitchen", y: 2026, r: "TV-PG", len: "2 seasons", g: ["Comedy", "Reality"], h: [30, 280], d: "Home cooks compete inside a working space-station set where the pans float and the timers don't." },
+    { id: 7, t: "Hollow Creek", y: 2023, r: "TV-MA", len: "1 season", g: ["Horror", "Mystery"], h: [120, 270], d: "The town's creek dries up overnight. What's left at the bottom is the reason nobody ever swam there." },
+    { id: 8, t: "Fast Lane Sundays", y: 2025, r: "TV-14", len: "6 episodes", g: ["Documentary", "Sports"], h: [5, 25], d: "Six weekends inside the garages of an underfunded racing team chasing one podium." },
+    { id: 9, t: "The Cartographer's Daughter", y: 2024, r: "PG", len: "2h 05m", g: ["Fantasy", "Adventure"], h: [45, 175], d: "She inherits an atlas of places that haven't been discovered yet, and a rival who wants it burned." },
+    { id: 10, t: "Static Bloom", y: 2026, r: "TV-14", len: "1 season", g: ["Sci-Fi", "Mystery"], h: [310, 200], d: "Flowers begin growing inside dead televisions across the city. Each one plays a different memory." },
+    { id: 11, t: "Dust Road", y: 2022, r: "R", len: "1h 58m", g: ["Western"], h: [28, 12], d: "A retired courier agrees to one last delivery across a desert that has stopped appearing on maps." },
+    { id: 12, t: "Neon Alibi", y: 2025, r: "TV-MA", len: "2 seasons", g: ["Crime", "Mystery"], h: [320, 190], d: "Every witness in the case was in a different club that night. Every club says it was closed." },
+    { id: 13, t: "Pocket Universe", y: 2025, r: "TV-Y", len: "4 seasons", g: ["Animation", "Family"], h: [190, 60], d: "A kid finds a tiny galaxy in her coat pocket and has to keep it fed, warm, and secret." },
+    { id: 14, t: "The Understudy", y: 2024, r: "PG-13", len: "1h 35m", g: ["Comedy"], h: [55, 15], d: "The lead of a big-budget musical vanishes an hour before curtain. The understudy has never seen the second act." },
+    { id: 15, t: "Tide Pull", y: 2026, r: "TV-G", len: "4 episodes", g: ["Documentary", "Nature"], h: [190, 220], d: "A year on one stretch of shoreline, filmed at the exact moment the water turns." },
+    { id: 16, t: "Glass Orchard", y: 2023, r: "TV-14", len: "1 season", g: ["Mystery", "Drama"], h: [95, 165], d: "An apple grower discovers her trees were planted over something, and her family has always known." },
+    { id: 17, t: "Backstage Riot", y: 2025, r: "TV-14", len: "1h 30m", g: ["Documentary", "Music"], h: [345, 20], d: "The chaotic week leading up to a band's first sold-out show, told from behind the curtain." },
+    { id: 18, t: "Moon Farmers", y: 2026, r: "TV-PG", len: "3 seasons", g: ["Comedy", "Sci-Fi"], h: [70, 200], d: "The first agricultural colony on the moon has a soil problem, a staffing problem, and a goat problem." }
+  ];
+  var ROWS = [
+    { name: "Trending now", ids: [1, 4, 3, 9, 12, 7, 2, 10] },
+    { name: "New this month", ids: [18, 15, 3, 6, 10, 1, 8] },
+    { name: "Sci-Fi & Fantasy", ids: [1, 10, 9, 18, 13] },
+    { name: "Crime & mystery", ids: [4, 12, 16, 7] },
+    { name: "Feel-good picks", ids: [14, 6, 5, 13, 3, 18] },
+    { name: "True stories", ids: [8, 15, 17, 2, 11] }
+  ];
+  var FEATURED = 1;
+
+  var byId = {}; TITLES.forEach(function (x) { byId[x.id] = x; });
+  var list = [];
+  try { list = JSON.parse(localStorage.getItem("reelhouse-list") || "[]"); if (!Array.isArray(list)) list = []; } catch (e) { list = []; }
+  function saveList() { try { localStorage.setItem("reelhouse-list", JSON.stringify(list)); } catch (e) {} }
+  function inList(id) { return list.indexOf(id) !== -1; }
+  function toggle(id) { if (inList(id)) list = list.filter(function (x) { return x !== id; }); else list.push(id); saveList(); refresh(); }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var view = "home", query = "", openId = null;
+
+  function art(x) { return "linear-gradient(160deg, hsl(" + x.h[0] + " 65% 38%), hsl(" + x.h[1] + " 70% 14%))"; }
+
+  function card(x) {
+    var b = document.createElement("button");
+    b.className = "card"; b.style.background = art(x);
+    b.setAttribute("aria-label", x.t + (inList(x.id) ? " (in My List)" : ""));
+    b.innerHTML = '<span class="t"></span>' + (inList(x.id) ? '<span class="tick">✓</span>' : "");
+    b.querySelector(".t").textContent = x.t;
+    b.addEventListener("click", function () { openModal(x.id); });
+    return b;
+  }
+
+  function renderRows() {
+    var host = $("rows"); host.innerHTML = "";
+    var isHome = view === "home" && !query;
+    $("hero").style.display = isHome ? "flex" : "none";
+    var lc = query.toLowerCase();
+
+    if (query) {
+      var hits = TITLES.filter(function (x) { return (x.t + " " + x.g.join(" ")).toLowerCase().indexOf(lc) !== -1; });
+      if (!hits.length) { host.innerHTML = '<p class="empty">Nothing matches "' + query.replace(/[<>&"]/g, "") + '". Try a genre like crime or comedy.</p>'; return; }
+      var g = document.createElement("div"); g.className = "grid";
+      hits.forEach(function (x) { g.appendChild(card(x)); });
+      host.appendChild(g); return;
+    }
+    if (view === "list") {
+      if (!list.length) { host.innerHTML = '<p class="empty" style="margin-top:140px">Your list is empty. Open any title and tap + My List to save it here.</p>'; return; }
+      var g2 = document.createElement("div"); g2.className = "grid";
+      list.forEach(function (id) { g2.appendChild(card(byId[id])); });
+      host.appendChild(g2); return;
+    }
+    ROWS.forEach(function (r) {
+      var s = document.createElement("section"); s.className = "row";
+      var h = document.createElement("h2"); h.textContent = r.name; s.appendChild(h);
+      var strip = document.createElement("div"); strip.className = "strip";
+      r.ids.forEach(function (id) { strip.appendChild(card(byId[id])); });
+      s.appendChild(strip); host.appendChild(s);
+    });
+  }
+
+  function renderHero() {
+    var x = byId[FEATURED];
+    $("heroArt").style.background = art(x);
+    $("heroKicker").textContent = x.g.join(", ") + " · " + x.y;
+    $("heroTitle").textContent = x.t;
+    $("heroDesc").textContent = x.d;
+    $("heroList").textContent = inList(x.id) ? "✓ In My List" : "+ My List";
+  }
+
+  function refresh() {
+    renderHero(); renderRows();
+    if (openId) { $("mList").textContent = inList(openId) ? "✓ In My List" : "+ My List"; }
+  }
+
+  function setView(v) {
+    view = v; query = ""; $("q").value = "";
+    $("tabHome").setAttribute("aria-current", v === "home");
+    $("tabList").setAttribute("aria-current", v === "list");
+    window.scrollTo(0, 0); refresh();
+  }
+
+  /* MODAL */
+  function openModal(id) {
+    var x = byId[id]; openId = id;
+    $("mBanner").style.background = art(x);
+    $("mTitle").textContent = x.t;
+    $("mMeta").innerHTML = '<span>' + x.y + '</span><span class="r">' + x.r + '</span><span>' + x.len + '</span><span>' + x.g.join(", ") + '</span>';
+    $("mDesc").textContent = x.d;
+    $("mList").textContent = inList(id) ? "✓ In My List" : "+ My List";
+    $("modal").classList.add("show");
+  }
+  function closeModal() { $("modal").classList.remove("show"); openId = null; }
+  $("modal").addEventListener("click", function (e) { if (e.target.hasAttribute("data-close")) closeModal(); });
+  $("mList").addEventListener("click", function () { if (openId) toggle(openId); });
+  $("mPlay").addEventListener("click", function () { if (openId) { var id = openId; closeModal(); play(id); } });
+
+  /* PLAYER */
+  var pTimer = null, pct = 0, playing = true, playingId = null;
+  function play(id) {
+    playingId = id; pct = 0; playing = true;
+    $("pTitle").textContent = byId[id].t;
+    $("pToggle").textContent = "Pause";
+    $("player").classList.add("show");
+    clearInterval(pTimer);
+    pTimer = setInterval(function () {
+      if (!playing) return;
+      pct = Math.min(100, pct + 0.4);
+      $("pBar").style.width = pct + "%";
+      $("pTime").textContent = Math.round(pct) + "% watched";
+      if (pct >= 100) { playing = false; $("pToggle").textContent = "Watch again"; }
+    }, 200);
+  }
+  function stopPlayer() { clearInterval(pTimer); $("player").classList.remove("show"); }
+  $("pToggle").addEventListener("click", function () {
+    if (pct >= 100) { pct = 0; playing = true; $("pToggle").textContent = "Pause"; return; }
+    playing = !playing; $("pToggle").textContent = playing ? "Pause" : "Resume";
+  });
+  $("pBack").addEventListener("click", stopPlayer);
+
+  /* HERO + NAV */
+  $("heroPlay").addEventListener("click", function () { play(FEATURED); });
+  $("heroList").addEventListener("click", function () { toggle(FEATURED); });
+  $("heroInfo").addEventListener("click", function () { openModal(FEATURED); });
+  $("tabHome").addEventListener("click", function () { setView("home"); });
+  $("tabList").addEventListener("click", function () { setView("list"); });
+  $("searchBtn").addEventListener("click", function () {
+    var s = $("search"); s.classList.toggle("open");
+    if (s.classList.contains("open")) $("q").focus(); else { $("q").value = ""; query = ""; refresh(); }
+  });
+  $("q").addEventListener("input", function (e) { query = e.target.value.trim(); window.scrollTo(0, 0); refresh(); });
+  window.addEventListener("scroll", function () { $("nav").classList.toggle("solid", window.scrollY > 30 || view !== "home" || !!query); }, { passive: true });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if ($("player").classList.contains("show")) stopPlayer(); else closeModal(); } });
+
+  refresh();
+})();
+</script>
+</body>
+</html>
